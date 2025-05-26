@@ -163,4 +163,5 @@ app.post("/postInbox", async (req, res) => {
 });
 
 // ==========================================================
-app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server berjalan di port ${PORT}`);
+
