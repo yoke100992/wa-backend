@@ -5,7 +5,7 @@ const { google } = require("googleapis");
 const credentials = require("./credentials.json");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const SHEET_ID = "1JNFMxWz-0A7QUKWOcNlxn_Yb4xlyNOlnBRnJd_Bz5qA";
 
 app.use(cors());
