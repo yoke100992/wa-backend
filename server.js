@@ -2,10 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
-const credentials = require("./credentials.json");
+
+const credentials = JSON.parse(process.env.CREDENTIALS); // pakai ENV di Railway
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // penting untuk Railway
+
 const SHEET_ID = "1JNFMxWz-0A7QUKWOcNlxn_Yb4xlyNOlnBRnJd_Bz5qA";
 
 app.use(cors());
@@ -16,7 +18,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
-// ======================= DATA2 ============================
+// ======= GET DATA2 ========
 app.get("/api/data2", async (req, res) => {
   try {
     const client = await auth.getClient();
@@ -30,7 +32,7 @@ app.get("/api/data2", async (req, res) => {
     const rows = result.data.values;
     const headers = rows[0];
     const data = rows.slice(1).map((row, index) => {
-      const obj = { _row: index + 2 }; // gunakan _row sebagai ID Google Sheets
+      const obj = { _row: index + 2 };
       headers.forEach((h, i) => (obj[h] = row[i] || ""));
       return obj;
     });
@@ -41,10 +43,10 @@ app.get("/api/data2", async (req, res) => {
   }
 });
 
+// ======= POST DATA2 ========
 app.post("/postData2", async (req, res) => {
   const { id, action, data } = req.body;
   const rowIndex = parseInt(id);
-  console.log("➡️ Request /postData2:", { rowIndex, action });
 
   try {
     const client = await auth.getClient();
@@ -66,8 +68,6 @@ app.post("/postData2", async (req, res) => {
         data.Jam
       ]];
 
-      console.log("✏️ Menyimpan ke:", range, values);
-
       await sheets.spreadsheets.values.update({
         spreadsheetId: SHEET_ID,
         range,
@@ -76,6 +76,8 @@ app.post("/postData2", async (req, res) => {
       });
 
     } else if (action === "delete") {
+      const sheetId = 0; // ID sheet DATA2 — sesuaikan jika berbeda
+
       const request = {
         spreadsheetId: SHEET_ID,
         resource: {
@@ -83,30 +85,28 @@ app.post("/postData2", async (req, res) => {
             {
               deleteDimension: {
                 range: {
-                  sheetId: 821092307, // ID sheet DATA2, asumsi index pertama (0), ubah jika perlu
+                  sheetId,
                   dimension: "ROWS",
-                  startIndex: rowIndex - 1, // zero-based
-                  endIndex: rowIndex
-                }
-              }
-            }
-          ]
+                  startIndex: rowIndex - 1,
+                  endIndex: rowIndex,
+                },
+              },
+            },
+          ],
         },
       };
-
-      console.log("🗑️ Menghapus baris ke:", rowIndex);
 
       await sheets.spreadsheets.batchUpdate(request);
     }
 
     res.json({ status: "ok" });
   } catch (e) {
-    console.error("❌ ERROR postData2:", e.toString());
+    console.error("❌ ERROR:", e.toString());
     res.status(500).json({ error: e.toString() });
   }
 });
 
-// ======================= INBOX2 Tetap =====================
+// ======= INBOX2 ========
 app.get("/api/inbox", async (req, res) => {
   try {
     const client = await auth.getClient();
@@ -162,6 +162,7 @@ app.post("/postInbox", async (req, res) => {
   }
 });
 
-// ==========================================================
-app.listen(PORT, () => console.log(`🚀 Server berjalan di port ${PORT}`);
-
+// ======= START SERVER ========
+app.listen(PORT, () => {
+  console.log(`🚀 Server berjalan di port ${PORT}`);
+});
