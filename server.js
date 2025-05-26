@@ -5,7 +5,11 @@ const { google } = require("googleapis");
 
 let credentials;
 
-const credentials = JSON.parse(process.env.CREDENTIALS);
+if (process.env.CREDENTIALS) {
+  credentials = JSON.parse(process.env.CREDENTIALS); // untuk Railway
+} else {
+  credentials = require("./credentials.json"); // fallback lokal
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000; // penting untuk Railway
