@@ -5,11 +5,8 @@ const { google } = require("googleapis");
 
 let credentials;
 
-if (process.env.CREDENTIALS) {
-  credentials = JSON.parse(process.env.CREDENTIALS);
-} else {
-  credentials = require("./credentials.json"); // fallback lokal
-}
+const credentials = JSON.parse(process.env.CREDENTIALS);
+
 const app = express();
 const PORT = process.env.PORT || 3000; // penting untuk Railway
 
