@@ -3,8 +3,13 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
 
-const credentials = JSON.parse(process.env.CREDENTIALS); // pakai ENV di Railway
+let credentials;
 
+if (process.env.CREDENTIALS) {
+  credentials = JSON.parse(process.env.CREDENTIALS);
+} else {
+  credentials = require("./credentials.json"); // fallback lokal
+}
 const app = express();
 const PORT = process.env.PORT || 3000; // penting untuk Railway
 
